@@ -1,6 +1,6 @@
 from lidcavity import LidCavity 
 from pydmd import ParametricDMD, DMD
-from ezyrb import POD, RBF
+from ezyrb import POD, KNeighborsRegressor
 import numpy as np
 data=LidCavity(10)
 params_train=data.params_train
@@ -9,7 +9,21 @@ u_train=data.V_train[:,:,:,0].transpose(1,2).numpy()
 u_test=data.V_test[:,:,:,0].transpose(1,2).numpy()
 dmd=DMD(svd_rank=-1)
 rom=POD('svd',rank=400)
-interpolator=RBF()
+
+class RealKNR(KNeighborsRegressor):
+    def __init__(self):
+        self.knn=KNeighborsRegressor()
+
+    def fit(self,X,Y):
+        X_r=np.real(X)
+        Y_r=np.real(Y)
+        self.knn.fit(X_r,Y_r)
+
+    def predict(self,X):
+        X_r=np.real(X)
+        return self.knn.predict(X_r)
+
+interpolator=RealKNR()
 
 pdmd_monolithic_velocity_u = ParametricDMD(dmd, rom, interpolator)
 pdmd_monolithic_velocity_u.fit(
@@ -27,7 +41,7 @@ v_train=data.V_train[:,:,:,1].transpose(1,2).numpy()
 v_test=data.V_test[:,:,:,1].transpose(1,2).numpy()
 dmd=DMD(svd_rank=-1)
 rom=POD('svd',rank=400)
-interpolator=RBF()
+interpolator=RealKNR()
 
 pdmd_monolithic_velocity_v = ParametricDMD(dmd, rom, interpolator)
 pdmd_monolithic_velocity_v.fit(
@@ -45,7 +59,7 @@ p_train=data.V_train[:,:,:,2].transpose(1,2).numpy()
 p_test=data.V_test[:,:,:,2].transpose(1,2).numpy()
 dmd=DMD(svd_rank=-1)
 rom=POD('svd',rank=400)
-interpolator=RBF()
+interpolator=RealKNR()
 
 pdmd_monolithic_velocity_p = ParametricDMD(dmd, rom, interpolator)
 pdmd_monolithic_velocity_p.fit(

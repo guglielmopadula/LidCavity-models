@@ -1,6 +1,6 @@
 from lidcavity import LidCavity 
 from pydmd import ParametricDMD, DMD
-from ezyrb import POD, RBF, GPR, KNeighborsRegressor
+from ezyrb import POD, RBF
 import numpy as np
 data=LidCavity(10)
 params_train=data.params_train
