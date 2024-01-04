@@ -7,4 +7,6 @@ The models, with their main characteristics and performances, are summed up here
 |ParMonDMD+RBF|Fixed space grid and variable time grid with fixed steps|1.3e-05          |2.9e-05         |1.3e-05          |3.4e-05         |8.0e-06          |6.3e-05         |
 |ParParDMD+RBF|Fixed space grid and variable time grid with fixed steps|1.1e-02          |1.0e-02         |2.8e-02          |2.6e-02         |1.9e-03          |1.9e-03         |
 |ParMonDMD+KNR|Fixed space grid and variable time grid with fixed steps|2.4e-03          |2.3e-03         |2.4e-03          |2.5e-03         |3.1e-03          |2.6e-03         |
+|ParParDMD+KNR|Fixed space grid and variable time grid with fixed steps|1.2e-02          |1.1e-02         |2.8e-02          |2.6e-02         |3.6e-03          |3.2e-03         |
+
 
