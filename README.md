@@ -5,6 +5,24 @@ To install the necessary requirements do:
 
     $ pip install GPy sklearn pydmd scipy torch torchvision torchaudio git+https://github.com/mathLab/EZyRB 
 
+
+We assume that $u$ and $p$ belong to the space of functions 
+```math
+L^{2}([-0.05,0.05],0,10)=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R}^{k} \text{ s.t. } \int_{0}^{10} ||u(t)||_{1}^{2}dt=\int_{0}^{10}\left(\int_{[-0.05,0.05]}\sum_{i=1}^{k}|u(t,x,y)\cdot e_{i}|dxdy\right)^{2}dt<+\infty \}.
+```
+
+
+
+So the relative error that is used for measuring the model performance is:
+
+```math
+\frac{\int_{0}^{10}\left(\int_{[-0.05,0.05]}^{} \sum\limits_{i=1}^{k}|(u(t,x,y)-\hat{u}(t,x,y))\cdot e_{i}|dxdy\right)^{2}dt}{\int_{0}^{10}\left(\int_{[-0.05,0.05]}\sum\limits_{i=1}^{k}|u(t,x,y)\cdot e_{i}|dxdy\right)^{2}dt}
+```
+
+
+The integrals are calculated with the composite trapezoidal formula.
+
+
 The models, with their main characteristics and 
 performances, are summed up here.
 
