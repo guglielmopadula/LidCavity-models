@@ -3,9 +3,24 @@ from pydmd import ParametricDMD, DMD
 from ezyrb import POD, RBF
 import numpy as np
 
+
+class RealRBF(RBF):
+    def __init__(self):
+        self.rbf=RBF()
+
+    def fit(self,X,Y):
+        X_r=np.real(X)
+        Y_r=np.real(Y)
+        self.rbf.fit(X_r,Y_r)
+
+    def predict(self,X):
+        X_r=np.real(X)
+        return self.rbf.predict(X_r)
+
+
 class Model():
     def __init__(self):
-        self.model=ParametricDMD(DMD(svd_rank=-1),POD('svd',rank=400),RBF())
+        self.model=ParametricDMD(DMD(svd_rank=-1),POD('svd',rank=400),RealRBF())
     
     def fit(self,x,y):
         self.model.fit(np.transpose(y,(0,2,1)),x)
@@ -66,3 +81,83 @@ print("rel train error of u_2 is", "{:.1E}".format(rel_v_train_error))
 print("rel test error of u_2 is", "{:.1E}".format(rel_v_test_error))
 print("rel train error of p is", "{:.1E}".format(rel_p_train_error))
 print("rel test error of p is", "{:.1E}".format(rel_p_test_error))
+
+
+#### ANIMATION PART
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import os
+import sys
+nSeconds = 4
+fps=25
+times=data.time
+name=os.path.splitext(os.path.basename(sys.argv[0]))[0]
+u_all=np.sqrt(u_train[-1]**2+v_train[-1]**2).reshape(-1,20,20)
+u_rec_all=np.sqrt(rec_u_train[-1]**2+rec_v_train[-1]**2).reshape(-1,20,20)
+
+err=u_all-u_rec_all
+print(np.max(np.abs(err)))
+print(np.max(np.abs(u_all)))
+print(np.max(np.abs(u_rec_all)))
+
+fig, axarr = plt.subplots(1,3,figsize=(24,8))
+a=axarr[0].imshow(u_all[0],interpolation='none', aspect='auto', vmin=0, vmax=0.5)
+b=axarr[1].imshow(u_rec_all[0],interpolation='none', aspect='auto', vmin=0, vmax=0.5)
+c=axarr[2].imshow(err[0],interpolation='none', aspect='auto', vmin=0, vmax=0.5)
+axarr[0].set(xlabel='orig')
+axarr[1].set(xlabel='rec')
+axarr[2].set(xlabel='err')
+
+
+
+
+def animate_func(i):
+    a.set_array(u_all[i])
+    b.set_array(u_rec_all[i])
+    fig.suptitle('t='+str(times[i]))
+    c.set_array(err[i])
+    return [a,b,c]
+
+anim = animation.FuncAnimation(
+                               fig, 
+                               animate_func, 
+                               frames = nSeconds * fps,
+                               interval = 1000 / fps, # in ms
+                               )
+
+anim.save('videos/u_'+name+'.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
+
+p_all=p_train[-1].reshape(-1,20,20)
+p_rec_all=rec_p_train[-1].reshape(-1,20,20)
+err=p_all-p_rec_all
+print(np.max(np.abs(err)))
+print(np.max(np.abs(p_all)))
+print(np.max(np.abs(p_rec_all)))
+
+
+fig, axarr = plt.subplots(1,3,figsize=(24,8))
+a=axarr[0].imshow(p_all[0],interpolation='none', aspect='auto', vmin=0, vmax=0.05)
+b=axarr[1].imshow(p_rec_all[0],interpolation='none', aspect='auto', vmin=0, vmax=0.05)
+c=axarr[2].imshow(err[0],interpolation='none', aspect='auto', vmin=0, vmax=0.05)
+axarr[0].set(xlabel='orig')
+axarr[1].set(xlabel='rec')
+axarr[2].set(xlabel='err')
+
+
+
+
+def animate_func(i):
+    a.set_array(p_all[i])
+    b.set_array(p_rec_all[i])
+    fig.suptitle('t='+str(times[i]))
+    c.set_array(err[i])
+    return [a,b,c]
+
+anim = animation.FuncAnimation(
+                               fig, 
+                               animate_func, 
+                               frames = nSeconds * fps,
+                               interval = 1000 / fps, # in ms
+                               )
+
+anim.save('videos/p_'+name+'.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
