@@ -8,7 +8,11 @@ To install the necessary requirements do:
 
 We assume that $u$ and $p$ belong to the space of functions 
 ```math
-L^{2}([-0.05,0.05],0,10)=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R}^{k} \text{ s.t. } \int_{0}^{10} ||u(t)||_{1}^{2}dt=\int_{0}^{10}\left(\int_{[-0.05,0.05]}\sum_{i=1}^{k}|u(t,x,y)\cdot e_{i}|dxdy\right)^{2}dt<+\infty \}.
+L^{2}([-0.05,0.05],0,10)=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R}^{k} \text{ s.t. } \int_{0}^{10} \left(\int_{[-0.05,0.05]}\sum_{i=1}^{k}|u(t,x,y)\cdot e_{i}|^{2}+|u_{x}(t,x,y)\cdot e_{i}|^{2}+|u_{y}(t,x,y)\cdot e_{i}|^{2}dxdy\right)^{2}dt<+\infty \},
+```
+which is a Hilbert space if considering the scalar product
+```math
+(f,g)=\int_{0}^{10} \left(\int_{[-0.05,0.05]}\sum_{i=1}^{k}(f(t,x,y)\cdot e_{i})(g(t,x,y)\cdot e_{i})+(f_{x}(t,x,y)\cdot e_{i})(g_{x}(t,x,y)\cdot e_{i})+(f_{y}(t,x,y)\cdot e_{i})(g_{y}(t,x,y)\cdot e_{i})dxdy\right)dt
 ```
 
 
@@ -21,7 +25,7 @@ So the relative error that is used for measuring the model performance is:
 
 
 The integrals are calculated with the composite trapezoidal formula.
-
+The derivatives are calculated with first order difference method.
 
 The models, with their main characteristics and 
 performances, are summed up here.
