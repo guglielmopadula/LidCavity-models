@@ -12,7 +12,7 @@ L^{2}([-0.05,0.05],0,10)=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\righta
 ```
 which is a Hilbert space if considering the scalar product
 ```math
-(f,g)=\int_{0}^{10} \int_{[-0.05,0.05]}\sum_{i=1}^{k}\left((f(t,x,y)\cdot e_{i})(g(t,x,y)\cdot e_{i})+(f_{x}(t,x,y)\cdot e_{i})(g_{x}(t,x,y)\cdot e_{i})+(f_{y}(t,x,y)\cdot e_{i})(g_{y}(t,x,y)\cdot e_{i})\right)dxdydt
+(f,g)=\int_{0}^{10} \int_{[-0.05,0.05]}\sum\limits_{i=1}^{k}\left((f(t,x,y)\cdot e_{i})(g(t,x,y)\cdot e_{i})+(f_{x}(t,x,y)\cdot e_{i})(g_{x}(t,x,y)\cdot e_{i})+(f_{y}(t,x,y)\cdot e_{i})(g_{y}(t,x,y)\cdot e_{i})\right)dxdydt
 ```
 
 
@@ -20,7 +20,7 @@ which is a Hilbert space if considering the scalar product
 So the relative error that is used for measuring the model performance is:
 
 ```math
-\left(\frac{\int_{0}^{10} \int_{[-0.05,0.05]}\sum_{i=1}^{k}\left(|(u(t,x,y)-\hat{u}(t,x,y))\cdot e_{i}|^{2}+|(u_{x}(t,x,y)-\hat{u}_{x}(t,x,y))\cdot e_{i}|^{2}+|(u_{y}(t,x,y)-\hat{u}_{y}(t,x,y))\cdot e_{i}|^{2}\right)dxdydt}{ \int_{0}^{10} \int_{[-0.05,0.05]}\sum_{i=1}^{k}\left(|u(t,x,y)\cdot e_{i}|^{2}+|u_{x}(t,x,y)\cdot e_{i}|^{2}+|u_{y}(t,x,y)\cdot e_{i}|^{2}\right)dxdydt}\right)^{\frac{1}{2}}
+\left(\frac{\int_{0}^{10} \int_{[-0.05,0.05]}\sum\limits_{i=1}^{k}\left(|(u(t,x,y)-\hat{u}(t,x,y))\cdot e_{i}|^{2}+|(u_{x}(t,x,y)-\hat{u}_{x}(t,x,y))\cdot e_{i}|^{2}+|(u_{y}(t,x,y)-\hat{u}_{y}(t,x,y))\cdot e_{i}|^{2}\right)dxdydt}{ \int_{0}^{10} \int_{[-0.05,0.05]}\sum\limits_{i=1}^{k}\left(|u(t,x,y)\cdot e_{i}|^{2}+|u_{x}(t,x,y)\cdot e_{i}|^{2}+|u_{y}(t,x,y)\cdot e_{i}|^{2}\right)dxdydt}\right)^{\frac{1}{2}}
 ```
 
 
