@@ -8,11 +8,7 @@ To install the necessary requirements do:
 
 Following Teman (2000) we assume that $u$, $v$ and $p$ belong to the space of functions 
 ```math
-L^{+\infty}(0,10,H^{1}([-0.05,0.05]))=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R} \text{ s.t. } \max_[0,10] \int_{[-0.05,0.05]}\sum_{i=1}^{k}\left(|u(t,x,y)|^{2}+|u_{x}(t,x,y)|^{2}+|u_{y}(t,x,y)|^{2}\right)dxdydt<+\infty \},
-```
-which is a Hilbert space if considering the scalar product
-```math
-(f,g)=\int_{0}^{10} \int_{[-0.05,0.05]}\sum\limits_{i=1}^{k}\left((f(t,x,y)\cdot e_{i})(g(t,x,y)\cdot e_{i})+(f_{x}(t,x,y)\cdot e_{i})(g_{x}(t,x,y)\cdot e_{i})+(f_{y}(t,x,y)\cdot e_{i})(g_{y}(t,x,y)\cdot e_{i})\right)dxdydt
+L^{+\infty}(0,10,H^{1}([-0.05,0.05]))=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R} \text{ s.t. } \max_{[0,10]} (\int_{[-0.05,0.05]}\left(|u(t,x,y)|^{2}+|u_{x}(t,x,y)|^{2}+|u_{y}(t,x,y)|^{2}\right)dxdy)^{\frac{1}{2}}<+\infty \},
 ```
 
 
@@ -20,7 +16,7 @@ which is a Hilbert space if considering the scalar product
 So the relative error that is used for measuring the model performance is:
 
 ```math
-\left(\frac{\int_{0}^{10} \int_{[-0.05,0.05]}\sum\limits_{i=1}^{k}\left(|(u(t,x,y)-\hat{u}(t,x,y))\cdot e_{i}|^{2}+|(u_{x}(t,x,y)-\hat{u}_{x}(t,x,y))\cdot e_{i}|^{2}+|(u_{y}(t,x,y)-\hat{u}_{y}(t,x,y))\cdot e_{i}|^{2}\right)dxdydt}{ \int_{0}^{10} \int_{[-0.05,0.05]}\sum\limits_{i=1}^{k}\left(|u(t,x,y)\cdot e_{i}|^{2}+|u_{x}(t,x,y)\cdot e_{i}|^{2}+|u_{y}(t,x,y)\cdot e_{i}|^{2}\right)dxdydt}\right)^{\frac{1}{2}}
+\left(\frac{\max_{[0,10]} \int_{[-0.05,0.05]}\left(|(u(t,x,y)-\hat{u}(t,x,y))|^{2}+|(u_{x}(t,x,y)-\hat{u}_{x}(t,x,y))|^{2}+|(u_{y}(t,x,y)-\hat{u}_{y}(t,x,y))|^{2}\right)dxdy}{ \max_{[0,10]} \int_{[-0.05,0.05]}\sum\left(|u(t,x,y)|^{2}+|u_{x}(t,x,y)|^{2}+|u_{y}(t,x,y)|^{2}\right)dxdy}\right)^{\frac{1}{2}}
 ```
 
 
