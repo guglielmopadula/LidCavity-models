@@ -34,14 +34,13 @@ data=LidCavity(10)
 
 weights_space=data.weights_space
 weights_time=data.weights_time
-diff_x=data.diff_x
-diff_y=data.diff_y
+diff_x=data.diff_x.T
+diff_y=data.diff_y.T
 
 def loss_function(x,y):
     err=x-y
-    weights_time_tmp=weights_time.reshape(1,-1)
     weights_space_tmp=weights_space.reshape(1,1,-1)
-    return  np.mean(np.sqrt(np.sum(weights_time_tmp*np.sum(weights_space_tmp*(err**2+(err@diff_x)**2+(err@diff_y)**2),axis=2),axis=1)/np.sum(weights_time_tmp*np.sum(weights_space_tmp*(y**2+(y@diff_x)**2+(y@diff_y)**2),axis=2),axis=1)))
+    return np.mean(np.sqrt(np.max(np.sum(weights_space_tmp*(err**2+(err@diff_x)**2+(err@diff_y)**2),axis=2),axis=1)/np.max(np.sum(weights_space_tmp*(y**2+(y@diff_x)**2+(y@diff_y)**2),axis=2),axis=1)))
 
 
 params_train=data.params_train.reshape(-1,1)
