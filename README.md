@@ -8,7 +8,7 @@ To install the necessary requirements do:
 
 Following Teman (2000) we assume that $u$, $v$ and $p$ belong to the space of functions 
 ```math
-L^{+\infty}(0,10,H^{1}([-0.05,0.05]))=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R} \text{ s.t. } \max_{[0,10]} (\int_{[-0.05,0.05]}\left(|u(t,x,y)|^{2}+|u_{x}(t,x,y)|^{2}+|u_{y}(t,x,y)|^{2}\right)dxdy)^{\frac{1}{2}}<+\infty \},
+L^{+\infty}(0,10,H^{1}([-0.05,0.05]))=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R} \text{ s.t. } \max_{[0,10]} \int_{[-0.05,0.05]}\left(|u(t,x,y)|^{2}+|u_{x}(t,x,y)|^{2}+|u_{y}(t,x,y)|^{2}\right)dxdy)^{\frac{1}{2}}<+\infty \},
 ```
 
 
