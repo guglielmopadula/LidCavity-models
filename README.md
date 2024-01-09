@@ -6,9 +6,9 @@ To install the necessary requirements do:
     $ pip install GPy sklearn pydmd scipy torch torchvision torchaudio git+https://github.com/mathLab/EZyRB 
 
 
-We assume that $u$ and $p$ belong to the space of functions 
+Following Teman (2000) we assume that $u$, $v$ and $p$ belong to the space of functions 
 ```math
-L^{2}([-0.05,0.05],0,10)=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R}^{k} \text{ s.t. } \int_{0}^{10} \int_{[-0.05,0.05]}\sum_{i=1}^{k}\left(|u(t,x,y)\cdot e_{i}|^{2}+|u_{x}(t,x,y)\cdot e_{i}|^{2}+|u_{y}(t,x,y)\cdot e_{i}|^{2}\right)dxdydt<+\infty \},
+L^{+\infty}(0,10,H^{1}([-0.05,0.05]))=\{u:[0,10]\times [-0.05,0.05]\times [-0.05,0.05]\rightarrow \mathbb{R} \text{ s.t. } \operatorname{sup}_[0,10] \int_{[-0.05,0.05]}\sum_{i=1}^{k}\left(|u(t,x,y)|^{2}+|u_{x}(t,x,y)|^{2}+|u_{y}(t,x,y)|^{2}\right)dxdydt<+\infty \},
 ```
 which is a Hilbert space if considering the scalar product
 ```math
