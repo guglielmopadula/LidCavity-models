@@ -38,4 +38,4 @@ performances, are summed up here.
 |RNN          |Fixed space grid and variable time grid with fixed steps|2.6e-01          |2.5e-01         |3.2e-02          |3.1e-01         |4.2e-01          |4.1e-01         |
 |LSTM         |Fixed space grid and variable time grid with fixed steps|2.6e-01          |2.6e-01         |3.2e-01          |3.1e-01         |4.5e-01          |4.4e-01         |
 |GRU          |Fixed space grid and variable time grid with fixed steps|2.7e-01          |2.7e-01         |2.9e-01          |2.8e-01         |3.4e-01          |3.3e-01         |
-
+|NN           |Fixed space and time grid                               |2.5e-01          |2.5e-01         |3.5e-01          |3.4e-01         |4.8e-01          |4.7e-01         | 
