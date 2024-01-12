@@ -110,7 +110,6 @@ def train(i,num_times=NUM_TIMES,lr=lr):
         den_s=0
         norm=0
         for x,y in train_loader:
-            time_p=time_func.time()
             y=y[:,i]
             y_hat=model(x).reshape(y.shape)
             loss=train_loss(y,y_hat)
@@ -128,7 +127,6 @@ def train(i,num_times=NUM_TIMES,lr=lr):
                 num_s+=torch.linalg.norm(y_hat.reshape(y_hat.shape[0],-1)-y.reshape(y.shape[0],-1))**2
                 den_s+=torch.linalg.norm(y.reshape(y.shape[0],-1))**2
                 norm+=torch.linalg.norm(torch.cat(grads)).item()
-            assert False
         with torch.no_grad():
             rel_train_error=torch.sqrt(num_s/den_s).item()
             print(rel_train_error)
