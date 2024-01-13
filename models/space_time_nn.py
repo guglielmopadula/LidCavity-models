@@ -138,12 +138,12 @@ def train(i,num_times=NUM_TIMES,lr=lr):
     with torch.no_grad():
         q_list=[]
         for x,y in train_loader:
-            q=model(x).reshape(y.shape[0],y.shape[1],y.shape[2])
+            q=model(x).reshape(-1,num_times,num_x)
             q_list.append(q)
         rec_q_train=torch.cat(q_list,dim=0).numpy()
         q_list=[]
         for x,y in test_loader:
-            q=model(x).reshape(y.shape[0],y.shape[1],y.shape[2])
+            q=model(x).reshape(-1,num_times,num_x)
             q_list.append(q)
         rec_q_test=torch.cat(q_list,dim=0).numpy()
         q_train=data.V_train[:,:,:,i].numpy()
@@ -153,6 +153,18 @@ def train(i,num_times=NUM_TIMES,lr=lr):
 rec_u_train,rec_u_test,u_train,u_test=train(0,NUM_TIMES)
 rec_v_train,rec_v_test,v_train,v_test=train(1,NUM_TIMES)
 rec_p_train,rec_p_test,p_train,p_test=train(2,NUM_TIMES)
+u_train=u_train.reshape(-1,num_times,num_x)
+u_test=u_test.reshape(-1,num_times,num_x)
+v_train=v_train.reshape(-1,num_times,num_x)
+v_test=v_test.reshape(-1,num_times,num_x)
+p_train=p_train.reshape(-1,num_times,num_x)
+p_test=p_test.reshape(-1,num_times,num_x)
+rec_u_train=rec_u_train.reshape(-1,num_times,num_x)
+rec_u_test=rec_u_test.reshape(-1,num_times,num_x)
+rec_v_train=rec_v_train.reshape(-1,num_times,num_x)
+rec_v_test=rec_v_test.reshape(-1,num_times,num_x)
+rec_p_train=rec_p_train.reshape(-1,num_times,num_x)
+rec_p_test=rec_p_test.reshape(-1,num_times,num_x)
 
 
 weights_space=data.weights_space
