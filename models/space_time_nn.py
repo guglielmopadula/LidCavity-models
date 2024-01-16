@@ -34,16 +34,12 @@ max_grid=torch.max(data.grid_train[:,:,:,1]).item()
 min_grid=torch.min(data.grid_train[:,:,:,1]).item()
 
 x,y=data.train_loader.dataset.tensors
-
 x[:,:,:,0]=(x[:,:,:,0]-min_t)/(max_t-min_t)
 x[:,:,:,1]=(x[:,:,:,1]-min_grid)/(max_grid-min_grid)
 x[:,:,:,2]=(x[:,:,:,2]-min_grid)/(max_grid-min_grid)
 x[:,:,:,3]=(x[:,:,:,3]-min_par)/(max_par-min_par)
 
-x=x.reshape(-1,4)
-y=y.reshape(-1,3)
-
-train_loader=torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x,y),batch_size=100000,shuffle=False)
+train_loader=torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x,y),batch_size=10,shuffle=False)
 len_trainloader=len(train_loader)
 
 class Model(nn.Module):
@@ -69,6 +65,10 @@ class Model(nn.Module):
                 )
         
     def forward(self,x):
+        x[:,:,:,0]=(x[:,:,:,0]-min_t)/(max_t-min_t)
+        x[:,:,:,1]=(x[:,:,:,1]-min_grid)/(max_grid-min_grid)
+        x[:,:,:,2]=(x[:,:,:,2]-min_grid)/(max_grid-min_grid)
+        x[:,:,:,3]=(x[:,:,:,3]-min_par)/(max_par-min_par)
         x=self.seq(x)
         return x
 
@@ -96,21 +96,21 @@ def count_parameters(model):
 
 
 
-NUM_TIMES=100
+NUM_EPOCHS=100
 lr=0.0001
 
 print(len_trainloader)
 
-def train(i,num_times=NUM_TIMES,lr=lr):
+def train(i,num_epochs=NUM_EPOCHS,lr=lr):
     model=Model(input_size,hidden_size,output_size)
     optimizer=torch.optim.Adam(model.parameters(),lr=lr)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=len_trainloader*50, gamma=0.1)
-    for epoch in trange(num_times):
+    for epoch in trange(num_epochs):
         num_s=0
         den_s=0
         norm=0
         for x,y in train_loader:
-            y=y[:,i]
+            y=y[:,:,:,i]
             y_hat=model(x).reshape(y.shape)
             loss=train_loss(y,y_hat)
             optimizer.zero_grad()
@@ -150,9 +150,9 @@ def train(i,num_times=NUM_TIMES,lr=lr):
         q_test=data.V_test[:,:,:,i].numpy()
     return rec_q_train,rec_q_test,q_train,q_test
 
-rec_u_train,rec_u_test,u_train,u_test=train(0,NUM_TIMES)
-rec_v_train,rec_v_test,v_train,v_test=train(1,NUM_TIMES)
-rec_p_train,rec_p_test,p_train,p_test=train(2,NUM_TIMES)
+rec_u_train,rec_u_test,u_train,u_test=train(0,NUM_EPOCHS)
+rec_v_train,rec_v_test,v_train,v_test=train(1,NUM_EPOCHS)
+rec_p_train,rec_p_test,p_train,p_test=train(2,NUM_EPOCHS)
 u_train=u_train.reshape(-1,num_times,num_x)
 u_test=u_test.reshape(-1,num_times,num_x)
 v_train=v_train.reshape(-1,num_times,num_x)
