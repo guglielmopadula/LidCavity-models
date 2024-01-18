@@ -149,7 +149,7 @@ def train(i,num_epochs=NUM_EPOCHS,lr=lr):
 
 rec_u_train,rec_u_test,u_train,u_test=train(0,NUM_EPOCHS)
 rec_v_train,rec_v_test,v_train,v_test=train(1,NUM_EPOCHS)
-rec_p_train,rec_p_test,p_train,p_test=train(2,NUM_EPOCHS)
+rec_p_train,rec_p_test,p_train,p_test=train(2,NUM_EPOCHS,0.001)
 u_train=u_train.reshape(-1,num_times,num_x)
 u_test=u_test.reshape(-1,num_times,num_x)
 v_train=v_train.reshape(-1,num_times,num_x)
