@@ -30,15 +30,12 @@ max_par=torch.max(params_train,axis=0)[0].item()
 min_par=torch.min(params_train,axis=0)[0].item()
 max_t=torch.max(time,axis=0)[0].item()
 min_t=torch.min(time,axis=0)[0].item()
+print(min_t)
+
 max_grid=torch.max(data.grid_train[:,:,:,1]).item()
 min_grid=torch.min(data.grid_train[:,:,:,1]).item()
 
 x,y=data.train_loader.dataset.tensors
-x[:,:,:,0]=(x[:,:,:,0]-min_t)/(max_t-min_t)
-x[:,:,:,1]=(x[:,:,:,1]-min_grid)/(max_grid-min_grid)
-x[:,:,:,2]=(x[:,:,:,2]-min_grid)/(max_grid-min_grid)
-x[:,:,:,3]=(x[:,:,:,3]-min_par)/(max_par-min_par)
-
 train_loader=torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x,y),batch_size=10,shuffle=False)
 len_trainloader=len(train_loader)
 
