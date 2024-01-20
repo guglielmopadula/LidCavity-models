@@ -41,3 +41,4 @@ performances, are summed up here.
 |NN           |Fixed space and time grid                               |2.5e-01          |2.5e-01         |3.5e-01          |3.4e-01         |4.8e-01          |4.7e-01         |
 |TimeNN       |Fixed space and variable time                           |1.8e-01          |1.8e-01         |2.3e-01          |2.2e-01         |3.9e-01          |3.8e-01         | 
 |SpaceTimeNN  |Variable space and variable time                        |3.0e-01          |3.0e-01         |4.5e-01          |4.5e-01         |4.8e-01          |4.7e-01         |
+|FNO          |Fixed space time grid with superresolution              |2.9e-01          |2.9e-01         |4.9e-01          |4.9e-01         |4.6e-01          |4.5e-01         |
