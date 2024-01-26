@@ -40,5 +40,5 @@ performances, are summed up here.
 |GRU          |Fixed space grid and variable time grid with fixed steps|1.4e-01          |1.3e-01         |2.9e-01          |2.7e-01         |6.6e-02          |5.9e-02         |
 |NN           |Fixed space and time grid                               |7.0e-02          |6.6e-02         |1.3e-01          |1.2e-01         |1.3e-01          |1.3e-01         |
 |TimeNN       |Fixed space and variable time                           |1.2e-01          |1.2e-01         |3.5e-02          |3.5e-02         |5.5e-02          |5.3e-02         | 
-|SpaceTimeNN  |Variable space and variable time                        |3.0e-01          |3.0e-01         |4.5e-01          |4.5e-01         |4.8e-01          |4.7e-01         |
-|FNO          |Fixed space time grid with superresolution              |2.9e-01          |2.9e-01         |4.9e-01          |4.9e-01         |4.6e-01          |4.5e-01         |
+|SpaceTimeNN  |Variable space and variable time                        |1.7e-01          |1.6e-01         |1.6e-01          |1.6e-01         |3.2e-01          |3.1e-01         |
+|FNO          |Fixed space time grid with superresolution              |2.2e-01          |2.2e-01         |2.3e-01          |2.2e-01         |3.0e-01          |2.9e-01         |

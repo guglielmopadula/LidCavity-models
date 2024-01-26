@@ -10,7 +10,7 @@ torch.manual_seed(0)
 train_loader=data.train_loader
 test_loader=data.test_loader
 l_t=len(train_loader)
-hidden_size=100
+hidden_size=500
 output_size=1
 num_times=data.V_train.shape[1]
 num_x=data.V_train.shape[2]
@@ -36,7 +36,7 @@ max_grid=torch.max(data.grid_train[:,:,:,1]).item()
 min_grid=torch.min(data.grid_train[:,:,:,1]).item()
 
 x,y=data.train_loader.dataset.tensors
-train_loader=torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x,y),batch_size=10,shuffle=False)
+train_loader=torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x,y),batch_size=1,shuffle=False)
 len_trainloader=len(train_loader)
 
 class Model(nn.Module):
