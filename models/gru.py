@@ -177,8 +177,8 @@ nSeconds = 4
 fps=25
 times=data.time
 name=os.path.splitext(os.path.basename(sys.argv[0]))[0]
-u_all=np.sqrt(u_train[-1]**2+v_train[-1]**2).reshape(-1,20,20)
-u_rec_all=np.sqrt(rec_u_train[-1]**2+rec_v_train[-1]**2).reshape(-1,20,20)
+u_all=np.sqrt(u_train[-1]**2+v_train[-1]**2).reshape(-1,21,21)
+u_rec_all=np.sqrt(rec_u_train[-1]**2+rec_v_train[-1]**2).reshape(-1,21,21)
 
 err=u_all-u_rec_all
 print(np.max(np.abs(err)))
@@ -212,8 +212,8 @@ anim = animation.FuncAnimation(
 
 anim.save('videos/u_'+name+'.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
 
-p_all=p_train[-1].reshape(-1,20,20)
-p_rec_all=rec_p_train[-1].reshape(-1,20,20)
+p_all=p_train[-1].reshape(-1,21,21)
+p_rec_all=rec_p_train[-1].reshape(-1,21,21)
 err=p_all-p_rec_all
 print(np.max(np.abs(err)))
 print(np.max(np.abs(p_all)))
