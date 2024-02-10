@@ -35,6 +35,8 @@ performances, are summed up here.
 |ParParDMD+KNR|Fixed space grid and variable time grid with fixed steps|2.7e-03          |2.6e-03         |3.7e-03          |3.5e-03         |4.0e-03          |3.8e-03         |
 |ParMonDMD+GPY|Fixed space grid and variable time grid with fixed steps|6.9e-05          |6.3e-05         |9.9e-05          |8.9e-05         |2.3e-04          |2.3e-04         |
 |ParParDMD+GPY|Fixed space grid and variable time grid with fixed steps|2.7e-03          |2.5e-03         |3.7e-03          |3.4e-03         |3.8e-03          |3.6e-03         |
+|ParMonDMD+NTK|Fixed space grid and variable time grid with fixed steps|2.4e-05          |1.8e-05         |3.1e-05          |2.4e-05         |1.1e-04          |8.4e-05         |    
+|POD+NTK      |Fixed space and time grid                               |5.1e-04          |4.3e-04         |6.9e-04          |5.7e-04         |2.5e-03          |2.5e-03         |
 |RNN          |Fixed space grid and variable time grid with fixed steps|1.7e-01          |1.6e-01         |3.0e-01          |2.8e-01         |1.2e-01          |1.1e-01         |
 |LSTM         |Fixed space grid and variable time grid with fixed steps|1.4e-01          |1.3e-01         |2.9e-01          |2.7e-01         |1.1e-01          |1.0e-01         |
 |GRU          |Fixed space grid and variable time grid with fixed steps|1.4e-01          |1.3e-01         |2.9e-01          |2.7e-01         |6.6e-02          |5.9e-02         |
