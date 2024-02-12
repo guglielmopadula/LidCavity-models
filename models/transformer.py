@@ -1,133 +1,128 @@
 from torch import nn
-from lidcavity import LidCavity 
+from ezyrb import POD
+from lidcavity import LidCavity
+from torch.nn import TransformerEncoder, TransformerEncoderLayer
 import torch
-from tqdm import trange
-import numpy as np
 import math
+import numpy as np
+from tqdm import trange
+a=LidCavity(10)
+
+y_train=a.V_train
+y_test=a.V_test
+parameters_train=a.params_train
+parameters_test=a.params_test
+
 data=LidCavity(10)
 torch.manual_seed(0)
 train_loader=data.train_loader
 test_loader=data.test_loader
 l_t=len(train_loader)
-hidden_size=200
-output_size=data.V_train.shape[2]
+hidden_size=500
+output_size=1
 num_times=data.V_train.shape[1]
 num_x=data.V_train.shape[2]
 len_trainloader=data.V_train.shape[0]
 len_testloader=data.V_test.shape[0]
-num_layers=5
-h0=torch.zeros(num_layers,hidden_size)
-c0=torch.zeros(num_layers,hidden_size)
-input_size=1
+num_layers=1
+input_size=441
 
-params_train=torch.tensor(data.params_train)
+params_train=torch.tensor(data.params_train).float()
+params_test=torch.tensor(data.params_test).float()
+params_train=params_train.unsqueeze(1)
+params_test=params_test.unsqueeze(1)
 time=torch.tensor(data.time)
+
 weights_space=torch.tensor(data.weights_space)
 weights_time=torch.tensor(data.weights_time)
+
+
 max_par=torch.max(params_train,axis=0)[0].item()
-max_t=torch.max(time,axis=0)[0].item()
 min_par=torch.min(params_train,axis=0)[0].item()
+max_t=torch.max(time,axis=0)[0].item()
 min_t=torch.min(time,axis=0)[0].item()
 
+params_train=(params_train-min_par)/(max_par-min_par)
+params_test=(params_test-min_par)/(max_par-min_par)
 
-'''
-class Transformer2D_Layer(nn.Module):
+print(min_t)
 
-    def __init__(self, embed_dim=128, num_heads=8,
-                 kdim=None, vdim=None, hidden_dim=256):
+max_grid=torch.max(data.grid_train[:,:,:,1]).item()
+min_grid=torch.min(data.grid_train[:,:,:,1]).item()
 
+NUM_TIMES=500
+lr=0.0001
+
+class TorchedPOD():
+    def __init__(self,rank):
+        self.pod=POD(method='randomized_svd',rank=rank)
+
+    
+    def fit(self,X):
+        self.pod.fit(X.numpy())
+        return torch.tensor(self.pod._modes).float(), torch.tensor(self.pod.transform(X)).float()
+
+
+class PositionalEncoding(nn.Module):
+
+    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000):
         super().__init__()
-        self.MHA = nn.MultiheadAttention(embed_dim=embed_dim,
-                                         num_heads=num_heads,
-                                         kdim=kdim, vdim=vdim,
-                                         batch_first=True)
-        self.FF = nn.Sequential(
-            nn.Conv1d(embed_dim, hidden_dim, 1),
-            nn.LeakyReLU(),
-            nn.Conv1d(hidden_dim, embed_dim, 1)
-        )
+        self.dropout = nn.Dropout(p=dropout)
+
+        position = torch.arange(max_len).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
+        pe = torch.zeros(max_len, 1, d_model)
+        pe[:, 0, 0::2] = torch.sin(position * div_term)
+        pe[:, 0, 1::2] = torch.cos(position * div_term)[:,:-1]
+        self.register_buffer('pe', pe)
 
     def forward(self, x):
-
-        #  x has shape (B, C, N) where N=HW
-        x = x.permute(0, 2, 1)
-        # now, x has shape (B, N, C) where C=embed_dim
-        x = x + self.MHA(x, x, x, need_weights=False)[0]
-        x = x.permute(0, 2, 1)
-        x = x + self.FF(x)
-        return x
+        """
+        Arguments:
+            x: Tensor, shape ``[seq_len, batch_size, embedding_dim]``
+        """
+        x = x + self.pe[:x.size(0)]
+        return self.dropout(x)
 
 
-class Transformer2D(nn.Module):
+class TransformerModel(nn.Module):
 
-    def __init__(self, shape=(4, 4), n_layers=6,
-                 MHA_kwargs=dict(embed_dim=128, num_heads=8,
-                                 kdim=None, vdim=None, hidden_dim=256),
-                 periodic=True):
-
+    def __init__(self, d_model: int, nhead: int, d_hid: int,
+                 nlayers: int, dropout: float = 0.1):
         super().__init__()
-        self.spatial_shape = shape  # (nx, ny)
-        nx, ny = shape
+        self.model_type = 'Transformer'
+        self.pos_encoder = PositionalEncoding(d_model, dropout)
+        encoder_layers =  TransformerEncoderLayer(d_model, nhead, d_hid, dropout)
+        self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
+        self.d_model = d_model
+        self.linear = nn.Linear(d_model, d_model)
 
-        if periodic:
-            x, y = torch.meshgrid(torch.arange(nx), torch.arange(ny))
-            x_freq = torch.fft.rfftfreq(nx)[1:, None, None]
-            y_freq = torch.fft.rfftfreq(ny)[1:, None, None]
-            x_sin = torch.sin(2*np.pi*x_freq*x)
-            x_cos = torch.cos(2*np.pi*x_freq*x)
-            y_sin = torch.sin(2*np.pi*y_freq*y)
-            y_cos = torch.cos(2*np.pi*y_freq*y)
-            pos_info = torch.cat([x_sin, x_cos, y_sin, y_cos])
-        else:
-            x, y = torch.meshgrid(torch.arange(1, nx+1)/nx,
-                                  torch.arange(1, ny+1)/ny)
-            pos_info = torch.stack([x, y])
+        self.init_weights()
 
-        dim_pos = pos_info.shape[0]
-        self.pos_info = pos_info.unsqueeze(0) # for the batch dimension
+    def init_weights(self) -> None:
+        initrange = 0.1
+        self.linear.bias.data.zero_()
+        self.linear.weight.data.uniform_(-initrange, initrange)
 
-        self.pos_embedder = nn.Sequential(
-            nn.Conv2d(dim_pos, dim_pos*4, 1), nn.LeakyReLU(),
-            nn.Conv2d(dim_pos*4, MHA_kwargs['embed_dim'], 1)
-            )
+    def forward(self, src, src_mask=None):
+        """
+        Arguments:
+            src: Tensor, shape ``[seq_len, batch_size]``
+            src_mask: Tensor, shape ``[seq_len, seq_len]``
 
-        layers = [Transformer2D_Layer(**MHA_kwargs) for i in range(n_layers)]
-        self.transformer = nn.Sequential(*layers)
-
-    def forward(self, x):
-
-        x += self.pos_embedder(self.pos_info.to(x.device))
-        x = x.flatten(-2)
-        x = self.transformer(x)
-        x = x.reshape(*x.shape[:-1], *self.spatial_shape)
-        return x
-
-'''
-class PositionalEmbedding(nn.Module):
-    def __init__(self):
-        super(PositionalEmbedding, self).__init__()
-        self.max_len=99
-        self.d_model=441
-        position = torch.arange(self.max_len).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, self.d_model, 2) * (-math.log(10000.0) / self.d_model))
-        pe = torch.zeros(self.max_len, self.d_model)
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)[:,:-1]
-        self.pe=pe.unsqueeze(0)
-    def forward(self, x,pos):
-        return x+self.pe
-
-class Transformer(nn.Module):
-    def __init__(self,input_size,num_layers):
-        super(Transformer,self).__init__()
-        self.pos_enc=PositionalEmbedding()
-        self.transformer_encoder=nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=input_size, nhead=21, dim_feedforward=2048,batch_first=True,dropout=0.), num_layers=num_layers,enable_nested_tensor=False)
-        self.lin=nn.Linear(input_size,input_size)
-    def forward(self,x,pos):
-        x=self.pos_enc(x,pos)
-        x=self.transformer_encoder(x)
-        x=self.lin(x)
-        return x
+        Returns:
+            output Tensor of shape ``[seq_len, batch_size, ntoken]``
+        """
+        src = src * math.sqrt(self.d_model)
+        src = self.pos_encoder(src)
+        if src_mask is None:
+            """Generate a square causal mask for the sequence. The masked positions are filled with float('-inf').
+            Unmasked positions are filled with float(0.0).
+            """
+            src_mask = nn.Transformer.generate_square_subsequent_mask(len(src))
+        output = self.transformer_encoder(src, src_mask)
+        output = self.linear(output)
+        return output
     
 
 def train_loss(y,y_hat):
@@ -141,96 +136,88 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-model=Transformer(num_x,num_layers)
-
-
-NUM_TIMES=5
-lr=0.001
-
-
-
-def train(i,num_times=NUM_TIMES,lr=lr,clip=True,step=True):
-    model=Transformer(num_x,num_layers)
+def train(i,num_epochs=NUM_TIMES,lr=lr):
+    y=y_train[:,:,:,i]
+    y=y.reshape(y.shape[0],-1)
+    torchpod=TorchedPOD(30)
+    modes,basis=torchpod.fit(y)
+    basis=basis.reshape(-1,num_times,num_x)
+    basis=basis.transpose(0,1)
+    model=TransformerModel(input_size,d_hid=hidden_size,nhead=21,nlayers=num_layers)
     optimizer=torch.optim.Adam(model.parameters(),lr=lr)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min',patience=10*len(train_loader))
-    for epoch in trange(num_times):
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=len_trainloader*50, gamma=0.1)
+    for epoch in trange(num_epochs):
         num_s=0
         den_s=0
         norm=0
-        for x,y in train_loader:
-            y=y[:,:,:,i]
-            y_start=y[:,:99]
-            y_end=y[:,1:]
-            x=x[:,:99,:,:]
-            x[:,:,0,0]=(x[:,:,0,0]-min_par)/(max_par-min_par)
-            x[:,:,0,3]=(x[:,:,0,3]-min_t)/(max_t-min_t)
-            pos=torch.concatenate((x[:,:,0,0].unsqueeze(-1),x[:,:,0,3].unsqueeze(-1)),axis=-1)
-            y_hat=model(y_start,pos)
-            loss=train_loss(y_end,y_hat)
+        for j in range(30):
+            tmp=basis[:,j,:].unsqueeze(1)
+            x=tmp[:99]
+            y=tmp[1:]
+            y_hat=model(x)
+            loss=train_loss(y,y_hat)
             optimizer.zero_grad()
             loss.backward()
-            if clip:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 50)
             optimizer.step()
-            if step:
-                scheduler.step(loss)
             grads = [
             param.grad.detach().flatten()
             for param in model.parameters()
             if param.grad is not None
             ]
-
-
+            #scheduler.step()
             with torch.no_grad():
-                num_s+=torch.linalg.norm(y_hat.reshape(y_hat.shape[0],-1)-y_end.reshape(y_end.shape[0],-1))**2
-                den_s+=torch.linalg.norm(y_end.reshape(y.shape[0],-1))**2
+                num_s+=torch.linalg.norm(y_hat.reshape(y_hat.shape[0],-1)-y.reshape(y.shape[0],-1))**2
+                den_s+=torch.linalg.norm(y.reshape(y.shape[0],-1))**2
                 norm+=torch.linalg.norm(torch.cat(grads)).item()
         with torch.no_grad():
             rel_train_error=torch.sqrt(num_s/den_s).item()
             print(rel_train_error)
-            print(torch.var(y_end[-1,:,10]))
-            print(torch.var(y_hat[-1,1:,10]))
+            print(norm/l_t)
+
+    model_param=nn.Sequential(nn.Linear(1,100),nn.ReLU(),nn.Linear(100,100),nn.ReLU(),nn.Linear(100,30))
+    optimizer=torch.optim.Adam(model_param.parameters(),lr=lr)
+
+    for epoch in trange(num_epochs):
+        y_hat=model_param(params_train)
+        loss=train_loss(modes,y_hat)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        with torch.no_grad():
+            rel_train_error=torch.linalg.norm(modes-y_hat)/torch.linalg.norm(modes+1)
+            print(rel_train_error)
 
 
+    model=model.eval()
+    model_param=model_param.eval()
     with torch.no_grad():
         q_list=[]
-        for x,y in train_loader:
-            y=y[:,:,:,i]
-            y_start=y[:,:99]
-            y_end=y[:,1:]
-            x=x[:,:99,:,:]
-            x[:,:,0,0]=(x[:,:,0,0]-min_par)/(max_par-min_par)
-            x[:,:,0,3]=(x[:,:,0,3]-min_t)/(max_t-min_t)
-            pos=torch.concatenate((x[:,:,0,0].unsqueeze(-1),x[:,:,0,3].unsqueeze(-1)),axis=-1)
-            q=model(y_start,pos)
-            q_list.append(q)
-        rec_q_train=torch.cat(q_list,dim=0).numpy()
-        q_list=[]
-        for x,y in test_loader:
-            y=y[:,:,:,i]
-            y_start=y[:,:99]
-            y_end=y[:,1:]
-            x=x[:,:99,:,:]
-            x[:,:,0,0]=(x[:,:,0,0]-min_par)/(max_par-min_par)
-            x[:,:,0,3]=(x[:,:,0,3]-min_t)/(max_t-min_t)
-            pos=torch.concatenate((x[:,:,0,0].unsqueeze(-1),x[:,:,0,3].unsqueeze(-1)),axis=-1)
-            q=model(y_start,pos)
-            q_list.append(q)
-        rec_q_test=torch.cat(q_list,dim=0).numpy()
-        q_train=data.V_train[:,:,:,i].numpy()
-        q_test=data.V_test[:,:,:,i].numpy()
-    return rec_q_train,rec_q_test,q_train,q_test
+        for j in range(30):
+            tmp=basis[:,j,:].unsqueeze(1)
+            x=tmp[:99]
+            y=tmp[1:]
+            y_hat=model(x)
+            q_list.append(torch.cat((x.transpose(0,1)[:,0,:].unsqueeze(1),y_hat.transpose(0,1)),axis=1))
+        rec_q=torch.cat(q_list,dim=0).numpy().reshape(30,-1)
+        
+        rec_modes_train=model_param(params_train)
+        rec_q_train=rec_modes_train@rec_q
+        rec_q_train=rec_q_train.reshape(-1,num_times,num_x)
 
-rec_u_train,rec_u_test,u_train,u_test=train(0,NUM_TIMES,lr,False,False)
-rec_u_train=np.concatenate((u_train[:,0,:].reshape(-1,1,num_x),rec_u_train),axis=1)
-rec_u_test=np.concatenate((u_test[:,0,:].reshape(-1,1,num_x),rec_u_test),axis=1)
-rec_v_train,rec_v_test,v_train,v_test=train(1,NUM_TIMES,lr,False,False)
-rec_v_train=np.concatenate((v_train[:,0,:].reshape(-1,1,num_x),rec_v_train),axis=1)
-rec_v_test=np.concatenate((v_test[:,0,:].reshape(-1,1,num_x),rec_v_test),axis=1)
-rec_p_train,rec_p_test,p_train,p_test=train(2,NUM_TIMES,lr,False,False)
-rec_p_train=np.concatenate((p_train[:,0,:].reshape(-1,1,num_x),rec_p_train),axis=1)
-rec_p_test=np.concatenate((p_test[:,0,:].reshape(-1,1,num_x),rec_p_test),axis=1)
+        rec_modes_test=model_param(params_test)
 
+        rec_q_test=rec_modes_test@rec_q
+        rec_q_test=rec_q_test.reshape(-1,num_times,num_x)
+
+        q_train=y_train[:,:,:,i]
+        q_test=y_test[:,:,:,i]
+
+    return rec_q_train.numpy(),rec_q_test.numpy(),q_train.numpy(),q_test.numpy()
+
+
+rec_u_train,rec_u_test,u_train,u_test=train(0,NUM_TIMES,lr)
+rec_v_train,rec_v_test,v_train,v_test=train(1,NUM_TIMES,lr)
+rec_p_train,rec_p_test,p_train,p_test=train(2,NUM_TIMES,lr)
 
 weights_space=data.weights_space
 weights_time=data.weights_time
